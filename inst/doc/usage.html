@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -335,11 +336,19 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><code>causalOT</code> was developed to reproduce the methods in <a href="https://arxiv.org/abs/2109.01991"><em>Optimal transport methods for causal inference</em></a>. The functions in the package are built to construct weights to make distributions more same and estimate causal effects. We recommend using the Causal Optimal Transport methods since they are semi- to non-parametric. This document will describe some simple usages of the functions in the package and should be enough to get users started.</p>
+<p><code>causalOT</code> was developed to reproduce the methods in <a href="https://arxiv.org/abs/2109.01991"><em>Optimal transport methods
+for causal inference</em></a>. The functions in the package are built to
+construct weights to make distributions more same and estimate causal
+effects. We recommend using the Causal Optimal Transport methods since
+they are semi- to non-parametric. This document will describe some
+simple usages of the functions in the package and should be enough to
+get users started.</p>
 </div>
 <div id="estimating-weights" class="section level2">
 <h2>Estimating weights</h2>
-<p>The weights can be estimated by using the <code>calc_weight</code> function in the package. We select optimal hyperparameters through our bootstrap-based algorithm and target the average treatment effect.</p>
+<p>The weights can be estimated by using the <code>calc_weight</code>
+function in the package. We select optimal hyperparameters through our
+bootstrap-based algorithm and target the average treatment effect.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(causalOT)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1111</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -350,11 +359,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">add.divergence =</span> <span class="cn">TRUE</span>, <span class="at">grid.search =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">estimand =</span> <span class="st">&quot;ATE&quot;</span>,</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                       <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
-<p>These weights will balance distributions, making estimates of treatment effects the same. We can then estimate effects with</p>
+<p>These weights will balance distributions, making estimates of
+treatment effects the same. We can then estimate effects with</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tau_hat <span class="ot">&lt;-</span> <span class="fu">estimate_effect</span>(<span class="at">data =</span> hainmueller, <span class="at">weights =</span> weights,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hajek =</span> <span class="cn">TRUE</span>, <span class="at">doubly.robust =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">estimand =</span> <span class="st">&quot;ATE&quot;</span>)</span></code></pre></div>
-<p>This creates an object of class <code>causalEffect</code> which can be fed into the native <code>R</code> function <code>confint</code> to calculate asymptotic confidence intervals.</p>
+<p>This creates an object of class <code>causalEffect</code> which can
+be fed into the native <code>R</code> function <code>confint</code> to
+calculate asymptotic confidence intervals.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ci_tau <span class="ot">&lt;-</span> <span class="fu">confint</span>(<span class="at">object =</span> tau_hat, <span class="at">level =</span> <span class="fl">0.95</span>, </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">method =</span> <span class="st">&quot;asymptotic&quot;</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">model =</span> <span class="st">&quot;lm&quot;</span>,</span>
@@ -367,7 +379,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="diagnostics" class="section level2">
 <h2>Diagnostics</h2>
-<p>Diagnostics are also an important part of deciding whether the weights perform well. There are several areas that we will explore:</p>
+<p>Diagnostics are also an important part of deciding whether the
+weights perform well. There are several areas that we will explore:</p>
 <ol style="list-style-type: decimal">
 <li>Effective sample size</li>
 <li>Mean balance</li>
@@ -375,14 +388,24 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </ol>
 <div id="effective-sample-size" class="section level4">
 <h4>1. Effective sample size</h4>
-<p>Typically, estimated samples sizes with weights are calculated as <span class="math inline">\(\sum_i 1/w_i^2\)</span> and gives us a measure of how much information is in the sample. The lower the effective sample size (ESS), the higher the variance, and the lower the sample size, the more weight a few individuals have. Of course, we can calculate this in <code>causalOT</code>!</p>
+<p>Typically, estimated samples sizes with weights are calculated as
+<span class="math inline">\(\sum_i 1/w_i^2\)</span> and gives us a
+measure of how much information is in the sample. The lower the
+effective sample size (ESS), the higher the variance, and the lower the
+sample size, the more weight a few individuals have. Of course, we can
+calculate this in <code>causalOT</code>!</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ESS</span>(weights)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Control  Treated </span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 36.44976 31.14867</span></span></code></pre></div>
-<p>Of course, this measure has problems because it can fail to diagnose problems with variable weights. In response, <a href="https://arxiv.org/abs/1507.02646">Vehtari et al.</a> use Pareto smoothed importance sampling. We offer some shell code to adapt the class <code>causalWeights</code> to the <code>loo</code> package:</p>
+<p>Of course, this measure has problems because it can fail to diagnose
+problems with variable weights. In response, <a href="https://arxiv.org/abs/1507.02646">Vehtari et al.</a> use Pareto
+smoothed importance sampling. We offer some shell code to adapt the
+class <code>causalWeights</code> to the <code>loo</code> package:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>raw_psis <span class="ot">&lt;-</span> <span class="fu">PSIS</span>(weights)</span></code></pre></div>
-<p>This will also return the Pareto smoothed weights and log weights.</p>
-<p>If we want to easily examine the PSIS diagnostics, we can pull those out too</p>
+<p>This will also return the Pareto smoothed weights and log
+weights.</p>
+<p>If we want to easily examine the PSIS diagnostics, we can pull those
+out too</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PSIS_diag</span>(raw_psis)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $w0</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $w0$pareto_k</span></span>
@@ -398,11 +421,21 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $w1$n_eff</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 30.33031</span></span></code></pre></div>
-<p>We can see all of the <span class="math inline">\(k\)</span> values are below the recommended 0.5, indicating finite variance and that the central limit theorem holds. Note the estimated sample sizes are a bit lower than the <code>ESS</code> method above.</p>
+<p>We can see all of the <span class="math inline">\(k\)</span> values
+are below the recommended 0.5, indicating finite variance and that the
+central limit theorem holds. Note the estimated sample sizes are a bit
+lower than the <code>ESS</code> method above.</p>
 </div>
 <div id="mean-balance" class="section level4">
 <h4>2. Mean balance</h4>
-<p>Many authors consider the standardized absolute mean balance as a marker for important balance: see <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2943670/">Stuart (2010)</a>. That is <span class="math display">\[ \frac{|\overline{X}_c - \overline{X}_t| }{\sigma_{\text{pool}}},\]</span> where <span class="math inline">\(\overline{X}_c\)</span> is the mean in the controls, <span class="math inline">\(\overline{X}_t\)</span> is the mean in the treated, and <span class="math inline">\(\sigma_{\text{pool}}\)</span> is the pooled standard deviation. We offer such checks in <code>causalOT</code> as well.</p>
+<p>Many authors consider the standardized absolute mean balance as a
+marker for important balance: see <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2943670/">Stuart
+(2010)</a>. That is <span class="math display">\[ \frac{|\overline{X}_c
+- \overline{X}_t| }{\sigma_{\text{pool}}},\]</span> where <span class="math inline">\(\overline{X}_c\)</span> is the mean in the
+controls, <span class="math inline">\(\overline{X}_t\)</span> is the
+mean in the treated, and <span class="math inline">\(\sigma_{\text{pool}}\)</span> is the pooled
+standard deviation. We offer such checks in <code>causalOT</code> as
+well.</p>
 <p>First, we consider pre-weighting mean balance</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean_bal</span>(<span class="at">data =</span> hainmueller)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        X1        X2        X3        X4        X5        X6 </span></span>
@@ -418,7 +451,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="distributional-balance" class="section level4">
 <h4>3. Distributional balance</h4>
-<p>Ultimately, distributional balance is what we care about in causal inference. Fortunately, we can also measure that too. If we have python installed, we can use the GPU enabled <a href="https://www.kernel-operations.io/geomloss/">GeomLoss</a> package. Otherwise, the <a href="https://CRAN.R-project.org/package=approxOT">approxOT</a> package can provide similar calculations. We consider the 2-Sinkhorn divergence of <a href="http://proceedings.mlr.press/v84/genevay18a/genevay18a.pdf">Genevay et al.</a> since it metrizes the convergence in distribution.</p>
+<p>Ultimately, distributional balance is what we care about in causal
+inference. Fortunately, we can also measure that too. If we have python
+installed, we can use the GPU enabled <a href="https://www.kernel-operations.io/geomloss/">GeomLoss</a> package.
+Otherwise, the <a href="https://CRAN.R-project.org/package=approxOT">approxOT</a> package
+can provide similar calculations. We consider the 2-Sinkhorn divergence
+of <a href="http://proceedings.mlr.press/v84/genevay18a/genevay18a.pdf">Genevay
+et al.</a> since it metrizes the convergence in distribution.</p>
 <p>Before weighting, distributional balance looks poor:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># geomloss method</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(<span class="at">w0 =</span> <span class="fu">sinkhorn</span>(<span class="at">x =</span> hainmueller<span class="sc">$</span><span class="fu">get_x0</span>(), <span class="at">y =</span> hainmueller<span class="sc">$</span><span class="fu">get_x</span>(),</span>
@@ -447,12 +486,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $w1</span></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.0002435214</span></span></code></pre></div>
-<p>After Causal Optimal Transport, the distributions are <em>much</em> more similar.</p>
+<p>After Causal Optimal Transport, the distributions are <em>much</em>
+more similar.</p>
 </div>
 </div>
 <div id="other-methods" class="section level2">
 <h2>Other methods</h2>
-<p>The calc weight function can also handle other methods. We have implemented methods for logistic or probit regression, the covariate balancing propensity score (CBPS), stable balancing weights (SBW), and the synthetic control method (SCM).</p>
+<p>The calc weight function can also handle other methods. We have
+implemented methods for logistic or probit regression, the covariate
+balancing propensity score (CBPS), stable balancing weights (SBW), and
+the synthetic control method (SCM).</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calc_weight</span>(<span class="at">data =</span> hainmueller, <span class="at">method =</span> <span class="st">&quot;Logistic&quot;</span>,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">estimand =</span> <span class="st">&quot;ATE&quot;</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>

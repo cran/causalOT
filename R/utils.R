@@ -1,11 +1,11 @@
 pos_sdef <- function(X, symmetric = FALSE) {
   p <- ncol(X)
    if (inherits(X, "dsTMatrix")) {
-     X <- as(as(X, "dsCMatrix"),"dgCMatrix")
+     X <- as(as(X, "CsparseMatrix"),"generalMatrix")
      symmetric <- TRUE
    }
    if (inherits(X, "dgTMatrix")) {
-     X <- as(X, "dgCMatrix")
+     X <- as(X, "CsparseMatrix")
      symmetric <- TRUE
    }
   if (symmetric) {
@@ -32,11 +32,11 @@ pos_sdef <- function(X, symmetric = FALSE) {
 check_pos_sdef <- function(X, symmetric = FALSE) {
   p <- ncol(X)
   if (inherits(X, "dsTMatrix")) {
-    X <- as(as(X, "dsCMatrix"),"dgCMatrix")
+    X <- as(as(X, "CsparseMatrix"),"generalMatrix")
     symmetric <- TRUE
   }
   if (inherits(X, "dgTMatrix")) {
-    X <- as(X, "dgCMatrix")
+    X <- as(X, "CsparseMatrix")
     symmetric <- TRUE
   }
   if (symmetric) {
@@ -474,3 +474,25 @@ dist_2d_to_1d <- function (i, j, n, m) {
 }
 
 
+seed.gen <- function(design, overlap, niter, seed) {
+  
+  nd <- length(design)
+  no <- length(overlap)
+  ni <- as.integer(niter)
+  
+  num.seeds <- nd*no*ni
+  
+  set.seed(seed)
+  
+  seeds.out <- sample.int(.Machine$integer.max, num.seeds, replace = FALSE)
+  
+  return(seeds.out)
+}
+
+
+`%+%` <- direct_sum <- function(f, g) {
+  n <- length(f)
+  m <- length(g)
+  
+  return(matrix(f, n,m) + matrix(g, n, m, byrow = TRUE))
+}

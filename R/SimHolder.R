@@ -116,7 +116,7 @@
                                                              sigma_2 = NULL, opt = NULL, opt.method = NULL),
                                                  Wass = list(method = "networkflow",
                                                              niter = 0,
-                                                             epsilon = 0.05,
+                                                             epsilon = 10, #0.05,
                                                              powers = 2,
                                                              # ground_powers = 2,
                                                              metrics = "Lp",
@@ -163,9 +163,9 @@
                                private$standardized.difference.means <- NULL
                              }
                              if(is.null(Wass)) {
-                               Wass <- list(method = "sinkhorn",
+                               Wass <- list(method = "sinkhorn_geom",
                                            niter = 1e3,
-                                           epsilon = 1, # 0.05,
+                                           epsilon = 10, #0.05,
                                            powers = 2,
                                            # ground_powers = 2,
                                            metrics = "mahalanobis",
@@ -202,9 +202,9 @@
                              }
                              
                              if(!is.null(Wass$method)) {
-                               private$wass.opt$method <- match.arg(Wass$method, choices = approxOT::transport_options())
+                               private$wass.opt$method <- match.arg(Wass$method, choices = c(approxOT::transport_options(),"sinkhorn_geom"))
                              } else {
-                               private$wass.opt$method <- "sinkhorn"
+                               private$wass.opt$method <- "sinkhorn_geom"
                              }
                              
                              
@@ -220,7 +220,7 @@
                              if (!is.null(Wass$epsilon)) {
                                private$wass.opt$epsilon <- as.double(Wass$epsilon)
                              } else {
-                               private$wass.opt$epsilon <- 1 # 0.05
+                               private$wass.opt$epsilon <-  10 #0.05
                              }
                              if (!is.null(Wass$constrained.wasserstein.target)) {
                                private$cwass.targ <- match.arg(Wass$constrained.wasserstein.target, c("RKHS", "SBW"))
@@ -418,6 +418,10 @@
                                                            several.ok = TRUE)
                              } else {
                                private$method <- pot.methods
+                             }
+                             if(any(private$method == "COT")) {
+                               private$method[private$method == "COT"] <- "Wasserstein"
+                               private$method <- unique(private$method)
                              }
                              private$weight_based_methods <- private$method[private$method != "gp"]
                              private$nmethod <- length(private$method)
@@ -1181,6 +1185,8 @@
                                                                   None = list(delta = NA_real_, other = NA_character_),
                                                                   Logistic = list(delta = private$truncations,
                                                                                   formula = private$ps.formula$logistic),
+                                                                  Probit = list(delta = private$truncations,
+                                                                                formula = private$ps.formula$logistic),
                                                                   CBPS = list(delta = NA_real_,
                                                                               formula = private$ps.formula$cbps),
                                                                   NNM = nnm_list,
@@ -1192,6 +1198,7 @@
                                                                   RKHS.dose = RKHS.dose_list,
                                                                   'Constrained Wasserstein' = Cwass_list,    
                                                                   Wasserstein = wass_list,
+                                                                  COT = wass_list,
                                                                   gp = list(NA)), simplify = FALSE)
                                             if("Logistic" %in% private$method) private$method.lookup$estimand[private$method.lookup$method == "Logistic"][[1]] <- private$estimand[private$estimand != "feasible"]
                                             private$max.conditions <- private$max.cond.calc()
@@ -1323,14 +1330,14 @@
                                               gamma <- private$RKHS$gamma
                                               sigma_2 <- private$RKHS$sigma_2
                                               lambda <- delta
-                                              if(grid.search) lambda <- 1e3
+                                              if(grid.search) lambda <- 1e2
                                               power <- p[[1]]
                                               # kernel <- private$RKHS$kernel
                                             }
                                             if ( isTRUE(joint.mapping) && isTRUE(add.margins) && isTRUE(penalty != "none"))  {
                                               grid.length <- 4
                                             } else {
-                                              grid.length <- 7
+                                              grid.length <- 8
                                             }
                                             if (estimand != "cATE") {
                                               private$weights[[estimand]] <- 

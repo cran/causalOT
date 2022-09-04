@@ -204,7 +204,7 @@ RKHS_grid_search <- function(data, grid = NULL,
 #' @param eval.method One of "bootstrap" or "cross.validation"
 #' @param method One of "Wasserstein","Constrained Wasserstein", "SCM".
 #' @param sample_weight NULL or object of class [sampleWeights][causalOT::sampleWeights-class]
-#' @param wass.method OT algorithm for evaluating balance
+#' @param wass.method OT algorithm for evaluating balance. Default "sinkhorn_geom" but otherwise should be a method supported by the approxOT package.
 #' @param wass.iter Number of iterations to run algorithm
 #' @param epsilon Used to calculated the penalty factor for the `wass.method`.
 #'  `lambda = epsilon*median(cost)`.
@@ -224,14 +224,14 @@ RKHS_grid_search <- function(data, grid = NULL,
 #'
 #' @keywords internal
 wass_grid_search <- function(data, grid = NULL, 
-                             grid.length = 7,
+                             grid.length = 8,
                              estimand = c("ATT", "ATC","cATE","ATE"),
                              K = 10, R = 10,
                              n.boot = 100,
                              eval.method = c("bootstrap", "cross.validation"),
                              method = c("Wasserstein","Constrained Wasserstein", "SCM"),
                              sample_weight = NULL,
-                             wass.method = "sinkhorn", wass.iter = 1e3,
+                             wass.method = "sinkhorn_geom", wass.iter = 1e3,
                              epsilon = 1,
                              lambda = 1e2,
                              unbiased = TRUE,
@@ -336,11 +336,13 @@ wass_grid_search <- function(data, grid = NULL,
                wass.method = wass.method,
                wass.iter = wass.iter,
                lambda = lambda,
+               epsilon = epsilon,
                sample_weight = sample_weight,
                estimand = estimand, 
                method = method, 
                solver = solver, 
                metric = metric,
+               unbiased = unbiased,
                p = p, 
                cost = cost, 
                add.joint = add.joint,
@@ -356,7 +358,7 @@ wass_grid_search <- function(data, grid = NULL,
   weight.list <- weight_est_fun(args)
   
   # evaluate calculated weights
-  output.weight <- eval_weights(weight.list, args)
+  output.weight <- eval_weights(weight.list, args)$weight
   
   return(output.weight)
   
@@ -683,6 +685,8 @@ eval_weights <- function(weights, args) {
     sel.weights1 <- clean_up_weights(weights.sep$w1, sel1, args)
     
     weight <- combine_weight_ATE(sel.weights0, sel.weights1)
+    sel <- list(control = sel0, treated = sel1)
+    wp  <- list(control = wp0, treated = wp1)
     
   } else  {
     eval.args <- args
@@ -714,7 +718,7 @@ eval_weights <- function(weights, args) {
     sel <- which(wp == min(wp, na.rm = TRUE))
     weight <- clean_up_weights(weights, sel, args)
   }
-  return(weight)
+  return(list(weight = weight, sel = sel, ot = wp))
 }
 
 weight_list_ATT_to_ATC <- function(weights) {
@@ -724,7 +728,7 @@ weight_list_ATT_to_ATC <- function(weights) {
     weights.new[[i]]$estimand <- "ATT"
     weights.new[[i]]$w0 <- weights[[i]]$w1
     weights.new[[i]]$w1 <- weights[[i]]$w0
-    weights.new[[i]]$gamma <- t(weights.new[[i]]$gamma)
+    weights.new[[i]]$gamma <- if(!is.null(weights.new[[i]]$gamma)) t(weights.new[[i]]$gamma)
   }
   
   return(weights.new)
@@ -759,8 +763,9 @@ separate_weights_ATE <- function(weights) {
     weights0[[i]]$estimand <- "ATT"
     weights1[[i]]$estimand <- "ATT"
     
-    weights0[[i]]$w1 <- colSums(weights0[[i]]$gamma)
-    weights1[[i]]$w1 <- colSums(weights1[[i]]$gamma)
+    n <- length(weights[[i]]$w1) + length(weights[[i]]$w0)
+    weights0[[i]]$w1 <- rep(1/n,n) #colSums(weights0[[i]]$gamma)
+    weights1[[i]]$w1 <-  rep(1/n,n) #colSums(weights1[[i]]$gamma)
   }
   
   return(list(w0 = weights0, w1 = weights1))
@@ -785,7 +790,7 @@ clean_up_weights <- function(weights, selection, args) {
     # args[["estimand"]] <-"ATT"
     new.weights <- weight_est_fun(args)
     sel.weight <- eval_weights(new.weights, args)
-    return(sel.weight)
+    return(sel.weight$weight)
   } else {
     return(weights[[selection[[1]]]])
   }
@@ -1277,7 +1282,7 @@ pen.fun.grid <- function(x, z,
     top    <- 1e4 * n
   } else if (penalty == "entropy") {
     bottom <- 1e-2
-    top    <- 1e4
+    top    <- 1e5
   }
   
   if ( estimand == "ATE") {
@@ -1546,15 +1551,18 @@ wass_grid <- function(rowCount, colCount, weight, cost, x0, x1, wass.method, was
   } else {
     p <- p.temp
   }
-  if(wass.method == "sinkhorn") {
+  if(wass.method == "sinkhorn_geom") {
     nzero_a <- which(weight$w0 != 0)
     nzero_b <- which(weight$w1 != 0)
-    lambda <- list(...)$lambda
+    dots <- list(...)
+    lambda <- dots$lambda
+    debias <- dots$unbiased
     if(is.na(lambda) || is.null(lambda)) lambda <- 1e2
-    
+    if(is.na(debias) || is.null(debias)) debias <- TRUE
+
     if(!is.null(x0) && !is.null(x1)) {
-      return(max(sinkhorn_geom(x = x0[nzero_a,], y = x1[nzero_b,], a = weight$w0[nzero_a], b = weight$w1[nzero_b], 
-                               power = p, blur = lambda, debias = TRUE, cost = NULL, scaling = 0.1, metric = "Lp")$loss,0)^(1/p))
+      return(max(sinkhorn_geom(x = x0[nzero_a,,drop = FALSE], y = x1[nzero_b,,drop = FALSE], a = weight$w0[nzero_a], b = weight$w1[nzero_b],
+                               power = p, blur = lambda, debias = debias, cost = NULL, scaling = 0.1, metric = "Lp")$loss,0)^(1/p))
     }
   }
   # if (estimand == "ATE") {
@@ -1584,9 +1592,9 @@ wass_grid <- function(rowCount, colCount, weight, cost, x0, x1, wass.method, was
       cc <- cost#[rowCount > 0, colCount > 0]
     }
      
-      return(wass_dist_helper(a = weight, b = NULL,
-                              cost = cc, X = x0, Y = x1,
-                              p = p, method = wass.method, niter = wass.iter, ...))
+    return(wass_dist_helper(a = weight, b = NULL,
+                            cost = cc, X = x0, Y = x1,
+                            p = p, method = wass.method, niter = wass.iter, ...))
     
   # }
 }
@@ -1616,34 +1624,45 @@ setup_boot_args <- function(boot.idx, weight.list,
   rowCount <- boot.idx$rowCount
   colCount <- boot.idx$colCount
   
-  if ( is.list(cost) ) {
+  entropy.meth.sel <- wass.method %in% c("sinkhorn","greenkhorn")
+  if (!missing(cost) && !is.null(cost) && is.list(cost) ) {
     cc <- cost[[length(cost)]]#[rowCount > 0, colCount > 0]
+  } else if ( (missing(cost) || is.null(cost)) && isTRUE(wass.method == "sinkhorn")) {
+    cc <- NULL
   } else {
     cc <- cost#[rowCount > 0, colCount > 0]
   }
   
-  entropy.meth.sel <- wass.method %in% c("sinkhorn","greenkhorn")
   
-  if(entropy.meth.sel == "greenkhorn") {
-    
+  
+  if(wass.method == "greenkhorn") {
+    greenk <- TRUE
+  } else {
+    greenk <- FALSE
   }
-  if (is.null(cost_a) && isTRUE(unbiased) && entropy.meth.sel) {
+  
+  if(wass.method == "sinkhorn") {
+    sink <- TRUE
+  } else {
+    sink <- FALSE
+  }
+  if (is.null(cost_a) && isTRUE(unbiased) && greenk) {
     cost_a <- cost_fun(rbind(x0,x0), z = c(rep(1,n0),
                                            rep(0,n0)),
                        power = p,
                        metric = metric, estimand = "ATT")
   } else {
     if (is.list(cost_a)) cost_a <- cost_a[[1]]
-  }
+  } 
   
-  if (is.null(cost_b) && isTRUE(unbiased) && entropy.meth.sel) {
+  if (is.null(cost_b) && isTRUE(unbiased) && greenk) {
     cost_b <- cost_fun(rbind(x1,x1), z = c(rep(1, n1),
                                            rep(0, n1)),
                        power = p,
                        metric = metric, estimand = "ATT")
-  } else {
+  } else if (! is.null(cost_b)) {
     if (is.list(cost_b)) cost_b <- cost_b[[1]]
-  }
+  } 
   
   boot.args <- list(FUN = "wass_grid", 
                     # bootIdx.row = bootIdx.rows, 
@@ -1996,7 +2015,7 @@ wass_grid_eval <- function(data, grid = NULL,
                      FUN = get_outcome, FUN.VALUE = 1,
                      data = data, estimand = estimand)
   
-  output.weight <- eval_weights(weight.list, args)
+  output.weight <- eval_weights(weight.list, args)$weight
   
   cv.chosen <- output.weight$args$constraint
   cv.chosen$margins <- cv.chosen$margins[1]
@@ -2008,7 +2027,7 @@ wass_grid_eval <- function(data, grid = NULL,
   if (is.null(cv.chosen$penalty)) cv.chosen$penalty <- NA_real_
   
   args$eval.method <- "bootstrap"
-  output.weight.b <- eval_weights(weight.list, args)
+  output.weight.b <- eval_weights(weight.list, args)$weight
   
   boot.chosen <- output.weight.b$args$constraint
   boot.chosen$margins <- boot.chosen$margins[1]
