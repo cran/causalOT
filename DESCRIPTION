@@ -1,8 +1,8 @@
 Package: causalOT
 Type: Package
 Title: Optimal Transport Weights for Causal Inference
-Version: 1.0
-Date: 2023-11-23
+Version: 1.0.1
+Date: 2023-11-29
 Author: Eric Dunipace [aut, cre] (<https://orcid.org/0000-0001-8909-213X>)
 Authors@R: 
     person("Eric", "Dunipace", 
@@ -39,6 +39,6 @@ Collate: 'DataSimClass.R' 'dataHolder.R' 'weightsClass.R' 'ESS.R'
         'summary.R' 'supportedMethods.R' 'treatment_effect.R' 'utils.R'
         'zzz.R'
 NeedsCompilation: yes
-Packaged: 2023-11-27 22:18:06 UTC; eifer
+Packaged: 2023-11-30 05:48:26 UTC; eifer
 Repository: CRAN
-Date/Publication: 2023-11-28 17:50:18 UTC
+Date/Publication: 2023-11-30 08:20:02 UTC
