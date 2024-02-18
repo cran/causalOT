@@ -1,3 +1,11 @@
+# causalOT 
+
+# causalOT 1.0.2
+
+## Minor improvements and fixes
+* `rkeops` was removed to CRAN. Constructed a work-around to prevent having to remove all optional code that uses `rkeops` by moving `rkeops` buil to an additional repository.
+
+
 # causalOT 1.0.1
 
 ## Minor improvements and fixes

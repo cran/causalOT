@@ -50,7 +50,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -525,7 +525,7 @@ use the <code>setup_arguments</code> function below:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>otp<span class="sc">$</span><span class="fu">setup_arguments</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">lambda =</span> <span class="cn">NULL</span>, <span class="co"># penalty values of the optimal transport (OT) distances to try</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">delta =</span> <span class="cn">NULL</span>, <span class="co"># constraint values to try for balancing functinos</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">grid.length =</span> 7L, <span class="co"># number of values of lambda and delta to try</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">grid.length =</span> <span class="dv">7</span><span class="dt">L</span>, <span class="co"># number of values of lambda and delta to try</span></span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="co"># if none are provided</span></span>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">cost.function =</span> <span class="cn">NULL</span>, <span class="co"># the ground cost to use between covariates</span></span>
 <span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="co"># default is the Euclidean distance</span></span>
@@ -534,7 +534,7 @@ use the <code>setup_arguments</code> function below:</p>
 <span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="at">debias =</span> <span class="cn">TRUE</span>, <span class="co"># use Sinkhorn divergences (debias = TRUE), i.e. debiased Sinkhorn distances, </span></span>
 <span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="co"># or use the Sinkhorn distances (debias = FALSE)</span></span>
 <span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>  <span class="at">diameter =</span> <span class="cn">NULL</span>, <span class="co"># the diameter of the covariate space if known</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="at">ot_niter =</span> 1000L, <span class="co"># the number of iterations to run when solving OT distances</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="at">ot_niter =</span> <span class="dv">1000</span><span class="dt">L</span>, <span class="co"># the number of iterations to run when solving OT distances</span></span>
 <span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  <span class="at">ot_tol =</span> <span class="fl">0.001</span> <span class="co"># the tolerance for convergance of OT distances</span></span>
 <span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>)</span></code></pre></div>
 <p>The last two arguments may be confusing at first but understanding
@@ -547,7 +547,7 @@ function.</p>
 <p>Once we have set up the arguments, we can solve this
 <code>OTProblem</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>otp<span class="sc">$</span><span class="fu">solve</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">niter =</span> 1000L, <span class="co"># maximum number of iterations</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">niter =</span> <span class="dv">1000</span><span class="dt">L</span>, <span class="co"># maximum number of iterations</span></span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">tol =</span> <span class="fl">1e-5</span>, <span class="co"># tolerance for convergence</span></span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="st">&quot;torch&quot;</span>, <span class="co"># which optimizer to use &quot;torch&quot; or &quot;frank-wolfe&quot;</span></span>
 <span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">torch_optim =</span> torch<span class="sc">::</span>optim_lbfgs, <span class="co"># torch optimizer to use if required</span></span>
@@ -572,8 +572,8 @@ optimization problems will possibly take longer to solve.</p>
 parameters chosen by the <code>OTProblem</code> object. We should select
 one to move forward with.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>otp<span class="sc">$</span><span class="fu">choose_hyperparameters</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">n_boot_lambda =</span> 100L, <span class="co">#Number of bootstrap iterations to choose lambda</span></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">n_boot_delta =</span> 1000L, <span class="co">#Number of bootstrap iterations to choose delta</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">n_boot_lambda =</span> <span class="dv">100</span><span class="dt">L</span>, <span class="co">#Number of bootstrap iterations to choose lambda</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">n_boot_delta =</span> <span class="dv">1000</span><span class="dt">L</span>, <span class="co">#Number of bootstrap iterations to choose delta</span></span>
 <span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">lambda_bootstrap =</span> <span class="cn">Inf</span> <span class="co"># penalty parameter to use for OT distances</span></span>
 <span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>The <code>delta</code> parameter wasn’t used so we only select the
@@ -611,7 +611,7 @@ problems using optimal transport.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>otp<span class="sc">$</span><span class="fu">setup_arguments</span>(</span>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="at">lambda =</span> <span class="cn">NULL</span>, <span class="co"># penalty values of the optimal transport (OT) distances to try</span></span>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="at">delta =</span> <span class="cn">NULL</span>, <span class="co"># constraint values to try for balancing functinos</span></span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  <span class="at">grid.length =</span> 7L, <span class="co"># number of values of lambda and delta to try</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  <span class="at">grid.length =</span> <span class="dv">7</span><span class="dt">L</span>, <span class="co"># number of values of lambda and delta to try</span></span>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>  <span class="co"># if none are provided</span></span>
 <span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>  <span class="at">cost.function =</span> <span class="cn">NULL</span>, <span class="co"># the ground cost to use between covariates</span></span>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>  <span class="co"># default is the Euclidean distance</span></span>
@@ -620,14 +620,14 @@ problems using optimal transport.</p>
 <span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a>  <span class="at">debias =</span> <span class="cn">TRUE</span>, <span class="co"># use Sinkhorn divergences (debias = TRUE), i.e. debiased Sinkhorn distances, </span></span>
 <span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>  <span class="co"># or use the Sinkhorn distances (debias = FALSE)</span></span>
 <span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a>  <span class="at">diameter =</span> <span class="cn">NULL</span>, <span class="co"># the diameter of the covariate space if known</span></span>
-<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a>  <span class="at">ot_niter =</span> 1000L, <span class="co"># the number of iterations to run when solving OT distances</span></span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a>  <span class="at">ot_niter =</span> <span class="dv">1000</span><span class="dt">L</span>, <span class="co"># the number of iterations to run when solving OT distances</span></span>
 <span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a>  <span class="at">ot_tol =</span> <span class="fl">0.001</span> <span class="co"># the tolerance for convergance of OT distances</span></span>
 <span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a>)</span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Solve the <code>OTProblem</code></li>
 </ol>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>otp<span class="sc">$</span><span class="fu">solve</span>(</span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>  <span class="at">niter =</span> 1000L, <span class="co"># maximum number of iterations</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>  <span class="at">niter =</span> <span class="dv">1000</span><span class="dt">L</span>, <span class="co"># maximum number of iterations</span></span>
 <span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>  <span class="at">tol =</span> <span class="fl">1e-5</span>, <span class="co"># tolerance for convergence</span></span>
 <span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="st">&quot;torch&quot;</span>, <span class="co"># which optimizer to use &quot;torch&quot; or &quot;frank-wolfe&quot;</span></span>
 <span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>  <span class="at">torch_optim =</span> torch<span class="sc">::</span>optim_lbfgs, <span class="co"># torch optimizer to use if required</span></span>
@@ -640,8 +640,8 @@ problems using optimal transport.</p>
 <li>Select hyperparameter values (if needed)</li>
 </ol>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>otp<span class="sc">$</span><span class="fu">choose_hyperparameters</span>(</span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  <span class="at">n_boot_lambda =</span> 100L, <span class="co">#Number of bootstrap iterations to choose lambda</span></span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="at">n_boot_delta =</span> 1000L, <span class="co">#Number of bootstrap iterations to choose delta</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  <span class="at">n_boot_lambda =</span> <span class="dv">100</span><span class="dt">L</span>, <span class="co">#Number of bootstrap iterations to choose lambda</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="at">n_boot_delta =</span> <span class="dv">1000</span><span class="dt">L</span>, <span class="co">#Number of bootstrap iterations to choose delta</span></span>
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="at">lambda_bootstrap =</span> <span class="cn">Inf</span> <span class="co"># penalty parameter to use for OT distances</span></span>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>)</span></code></pre></div>
 <ol start="6" style="list-style-type: decimal">

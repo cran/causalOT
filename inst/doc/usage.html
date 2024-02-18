@@ -50,7 +50,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -417,7 +417,7 @@ bootstrap-based algorithm and target the average treatment effect.</p>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">&quot;COT&quot;</span>,</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                       <span class="at">estimand =</span> <span class="st">&quot;ATE&quot;</span>, </span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                       <span class="at">options =</span> <span class="fu">list</span>(<span class="at">lambda.bootstrap =</span> <span class="cn">Inf</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                                      <span class="at">nboot =</span> 1000L)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                                      <span class="at">nboot =</span> <span class="dv">1000</span><span class="dt">L</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                       )</span></code></pre></div>
 <p>These weights will balance distributions, making estimates of
 treatment effects unbiased.</p>
@@ -539,7 +539,7 @@ outcomes would be if the samples had arisen from a different
 distribution. Let’s say that everyone had actually been treated</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a></span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>newdf   <span class="ot">&lt;-</span> df</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>newdf<span class="sc">$</span>z <span class="ot">&lt;-</span> 1L</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>newdf<span class="sc">$</span>z <span class="ot">&lt;-</span> <span class="dv">1</span><span class="dt">L</span></span>
 <span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>preds   <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object =</span> bp, </span>
 <span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>                   <span class="at">newdata =</span> newdf,</span>
 <span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>                   <span class="at">source.sample =</span> df<span class="sc">$</span>z)</span>
@@ -566,7 +566,7 @@ some extra arguments in the <code>...</code> argument.</p>
 <span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>                           <span class="at">debias =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>                           <span class="at">cost.online =</span> <span class="st">&quot;tensorized&quot;</span>,</span>
 <span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>                           <span class="at">diameter =</span> <span class="cn">NULL</span>,</span>
-<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>                           <span class="at">niter =</span> 1000L,</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>                           <span class="at">niter =</span> <span class="dv">1000</span><span class="dt">L</span>,</span>
 <span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>                           <span class="at">tol =</span> <span class="fl">1e-7</span>,</span>
 <span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>                           <span class="at">line_search_fn =</span> <span class="st">&quot;strong_wolfe&quot;</span></span>
 <span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a>                           )</span>
